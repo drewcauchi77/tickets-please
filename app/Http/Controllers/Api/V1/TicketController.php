@@ -33,7 +33,11 @@ class TicketController extends ApiController
     {
         try
         {
-            $user = User::findOrFail($request->input('data.relationships.author.data.id'));
+            User::findOrFail($request->input('data.relationships.author.data.id'));
+
+            $this->isAble('store', null);
+
+            return new TicketResource(Ticket::create($request->mappedAttributes()));
         }
         catch (ModelNotFoundException $e)
         {
@@ -41,8 +45,10 @@ class TicketController extends ApiController
                 'error' => 'The provided user id does not exist.'
             ]);
         }
-
-        return new TicketResource(Ticket::create($request->mappedAttributes()));
+        catch (AuthorizationException $e)
+        {
+            return $this->error('You are not authorised to create that resource', 401);
+        }
     }
 
     /**
@@ -101,6 +107,8 @@ class TicketController extends ApiController
         {
             $ticket = Ticket::findOrFail($ticket_id);
 
+            $this->isAble('replace', $ticket);
+
             $ticket->update($request->mappedAttributes());
 
             return new TicketResource($ticket);
@@ -108,6 +116,10 @@ class TicketController extends ApiController
         catch (ModelNotFoundException $e)
         {
             return $this->error('Ticket cannot be found', 404);
+        }
+        catch (AuthorizationException $e)
+        {
+            return $this->error('You are not authorised to update that resource', 401);
         }
     }
 
@@ -119,6 +131,9 @@ class TicketController extends ApiController
         try
         {
             $ticket = Ticket::findOrFail($ticket_id);
+
+            $this->isAble('delete', $ticket);
+
             $ticket->delete();
 
             return $this->ok('Ticket deleted successfully');
@@ -126,6 +141,10 @@ class TicketController extends ApiController
         catch (ModelNotFoundException $e)
         {
             return $this->error('Ticket cannot be found', 404);
+        }
+        catch (AuthorizationException $e)
+        {
+            return $this->error('You are not authorised to delete that resource', 401);
         }
     }
 }

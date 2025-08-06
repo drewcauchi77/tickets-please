@@ -6,6 +6,7 @@ use App\Models\Ticket;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,5 +20,12 @@ class DatabaseSeeder extends Seeder
         Ticket::factory(100)
             ->recycle($users)
             ->create();
+
+        User::create([
+            'email' => 'manager@manager.com',
+            'password' => bcrypt('password'),
+            'name' => 'Manager',
+            'is_manager' => true,
+        ]);
     }
 }
