@@ -24,4 +24,13 @@ trait ApiResponses {
             'status' => $statusCode
         ], $statusCode);
     }
+
+    protected function notAuthorised($message)
+    {
+        return $this->error([
+            'type' => 'Unauthorised',
+            'status' => 401,
+            'message' => $message,
+        ], 401);
+    }
 }
